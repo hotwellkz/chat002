@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Защита коллекции customers
+    match /customers/{uid} {
+      allow read: if request.auth.uid == uid;
+      
+      match /checkout_sessions/{id} {
+        allow read, write: if request.auth.uid == uid;
+      }
+      
+      match /subscriptions/{id} {
+        allow read: if request.auth.uid == uid;
+      }
+    }
+    
+    // Защита коллекции users
+    match /users/{userId} {
+      allow read: if request.auth.uid == userId;
+      allow write: if request.auth.uid == userId;
+      
+      match /subscriptions/{subscriptionId} {
+        allow read: if request.auth.uid == userId;
+      }
+    }
+    
+    // Защита коллекции chatSessions
+    match /chatSessions/{sessionId} {
+      allow read, write: if request.auth.uid == resource.data.userId;
+    }
+  }
+}
